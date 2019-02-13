@@ -21,6 +21,9 @@ awk '!/AllowTcpForwarding/' /etc/ssh/sshd_config > temp && mv temp /etc/ssh/sshd
 awk '!/X11Forwarding/' /etc/ssh/sshd_config > temp && mv temp /etc/ssh/sshd_config
 echo "AllowTcpForwarding no" >> /etc/ssh/sshd_config
 echo "X11Forwarding no" >> /etc/ssh/sshd_config
+# Configure connection timeout to 24 hours
+echo "ClientAliveInterval 120" >> /etc/ssh/sshd_config
+echo "ClientAliveCountMax 720" >> /etc/ssh/sshd_config
 
 mkdir /usr/bin/bastion
 
