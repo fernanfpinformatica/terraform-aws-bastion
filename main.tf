@@ -79,6 +79,25 @@ resource "aws_security_group" "bastion_host_security_group" {
   tags = "${merge(var.tags)}"
 }
 
+resource "aws_security_group" "bastion_host_security_group_tcp_forwarding" {
+  description = "Add outgoing rules to allow TCP forwarding on bastion host"
+  vpc_id      = "${var.vpc_id}"
+
+  tags = "${merge(var.tags)}"
+}
+
+resource "aws_security_group_rule" "bastion_host_egress" {
+  count           = "${length(var.tcp_forwarding_ports)}"
+
+  type            = "egress"
+  from_port       = "${element(var.tcp_forwarding_ports, count.index)}"
+  to_port         = "${element(var.tcp_forwarding_ports, count.index)}"
+  protocol        = "TCP"
+  cidr_blocks     = ["0.0.0.0/0"]
+
+  security_group_id = "${aws_security_group.bastion_host_security_group_tcp_forwarding.id}"
+}
+
 resource "aws_security_group" "private_instances_security_group" {
   description = "Enable SSH access to the Private instances from the bastion via SSH port"
   vpc_id      = "${var.vpc_id}"
@@ -217,6 +236,7 @@ resource "aws_launch_configuration" "bastion_launch_configuration" {
 
   security_groups = [
     "${aws_security_group.bastion_host_security_group.id}",
+    "${aws_security_group.bastion_host_security_group_tcp_forwarding.id}",
   ]
 
   user_data = "${data.template_file.user_data.rendered}"

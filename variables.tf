@@ -19,6 +19,13 @@ variable "cidrs" {
   ]
 }
 
+variable "tcp_forwarding_ports" {
+  description = "List of outgoing ports to bastion security group for allowing TCP forwarding"
+  type        = "list"
+  
+  default = []
+}
+
 variable "is_lb_private" {
   description = "If TRUE the load balancer scheme will be \"internal\" else \"internet-facing\""
 }
